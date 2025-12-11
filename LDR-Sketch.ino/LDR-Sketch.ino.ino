@@ -1,50 +1,144 @@
-const int ldrPin = A0;
-const int speakerPin01 = A1;
-const int speakerPin02 = A2;
+// --- Pins ---
+const int potPinVolume = A1;
+const int potPinEffect = A2;
+
+int volumeLeds[] = {3, 4, 5, 6};
+const int totaalVolumeLEDs = 4;
+
+int ledsTokkel[] = {8, 9, 10, 11};
+const int totaalTokkelLEDs = 4;
+
+const int speakerPinTok = 7;
+const int speakerPinLofi = 12;
+
+const int ldrPin = A3;
+const int buttonPin = 2;
+
+// --- Toggle Button Variables ---
+bool systemOn;
+bool lastButtonState;
+unsigned long lastDebounceTime = 0;
+const unsigned long debounceDelay = 50;
 
 void setup() {
   Serial.begin(9600);
+  for (int i = 0; i < totaalTokkelLEDs; i++) pinMode(ledsTokkel[i], OUTPUT);
+  for (int i = 0; i < totaalVolumeLEDs; i++) pinMode(volumeLeds[i], OUTPUT);
+
+  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(speakerPinTok, OUTPUT);
+  pinMode(speakerPinLofi, OUTPUT);
 }
 
 void loop() {
+  // -------------------------------------------------------
+  // BUTTON TOGGLE LOGIC (ON/OFF SWITCH)
+  // -------------------------------------------------------
+  int reading = digitalRead(buttonPin);
+
+if ( reading != lastButtonState && reading == 0) {
+   Serial.println("Verander");
+
+   // verander de state van systemOn
+   systemOn = (false==systemOn);
+   Serial.println(systemOn);
+}
+
+lastButtonState = reading;
+
+
+
+  //Serial.print("Reading: "); Serial.print(reading);
+  //Serial.print(" | SystemOn: "); Serial.println(systemOn);
+
+  if (!systemOn) {
+    noTone(speakerPinTok);
+    noTone(speakerPinLofi);
+    
+
+    for (int i = 0; i < totaalVolumeLEDs; i++) digitalWrite(volumeLeds[i], HIGH);
+    for (int i = 0; i < totaalTokkelLEDs; i++) digitalWrite(ledsTokkel[i], HIGH);
+    return;
+  }
+
+  // -------------------------------------------------------
+  // SYSTEM IS ON → Continue with normal code
+  // -------------------------------------------------------
+
+  // -------------------------
+  // Volume pot (A1)
+  // -------------------------
+  int rawVolume = analogRead(potPinVolume);
+  int volume = map(rawVolume, 0, 1023, 0, totaalVolumeLEDs);
+  for (int i = 0; i < totaalVolumeLEDs; i++) {
+    digitalWrite(volumeLeds[i], i < volume ? HIGH : LOW);
+  }
+  int volumeDuur = 30 + volume * 50;
+
+  // -------------------------
+  // Effect pot (A2)
+  // -------------------------
+  int rawEffect = analogRead(potPinEffect);
+  int effectLevel = map(rawEffect, 0, 1023, 0, totaalTokkelLEDs);
+
+  int pitchOffset  = map(rawEffect, 0, 1023, -80, 180);
+  int vibratoDepth = map(rawEffect, 0, 1023, 0, 15);
+  int vibratoRate  = map(rawEffect, 0, 1023, 0, 8);
+
+  // -------------------------
+  // Tokkel – lagere toon
+  // -------------------------
+  int waarde = analogRead(A0);
+  int tokkelNiveau = map(waarde, 0, 1023, 0, totaalTokkelLEDs);
+  for (int i = 0; i < totaalTokkelLEDs; i++) {
+    digitalWrite(ledsTokkel[i], i < tokkelNiveau ? HIGH : LOW);
+  }
+
+  if (tokkelNiveau > 0) {
+    int baseFreq = 260 + pitchOffset;
+    tone(speakerPinTok, baseFreq, volumeDuur);
+    delay(volumeDuur + 30);
+  } else {
+    noTone(speakerPinTok);
+  }
+
+  // -------------------------
+  // Lofi – lagere tonen
+  // -------------------------
   int ldrValue = analogRead(ldrPin);
 
-  Serial.print("LDR: ");
-  Serial.println(ldrValue);
-
-  // ---------------------------
-  // LOFI BEAT 1 – very calm
-  // ---------------------------
   if (ldrValue < 20) {
-    tone(speakerPin01, 180, 250); // warm low tone
-    delay(300);
-    tone(speakerPin01, 220, 200); // gentle follow-up
-    delay(500);                 // space = lofi
+    int tempoDuur = 160;
+    playLofiWithVibrato(120, volumeDuur, vibratoDepth, vibratoRate);
+    delay(tempoDuur);
+    playLofiWithVibrato(150, volumeDuur, vibratoDepth, vibratoRate);
+    delay(tempoDuur);
+  } else if (ldrValue > 35) {
+    int tempoDuur = 90;
+    playLofiWithVibrato(200, volumeDuur, vibratoDepth, vibratoRate);
+    delay(tempoDuur);
   }
 
-  // ---------------------------
-  // LOFI BEAT 2 – chill groove
-  // ---------------------------
-  else if (ldrValue > 20 && ldrValue < 30) {
-    tone(speakerPin02, 250, 200);
-    delay(250);
-    tone(speakerPin02, 300, 200);
-    delay(250);
-    tone(speakerPin02, 220, 300); // bassy drop
-    delay(400);
+
+  delay(20);
+}
+
+void playLofiWithVibrato(int freq, int duration, int depthHz, int rateHz) {
+  if (depthHz <= 0 || rateHz <= 0) {
+    tone(speakerPinLofi, freq, duration);
+    return;
   }
 
-  // ---------------------------
-  // LOFI BEAT 3 – slightly upbeat but still soft
-  // ---------------------------
-  else if (ldrValue > 35) {
-    tone(speakerPin01, 300, 180);
-    delay(200);
-    tone(speakerPin02, 350, 180);
-    delay(200);
-    tone(speakerPin01, 280, 250);
-    delay(350);
-  }
+  unsigned long start = millis();
+  unsigned long now = start;
 
-  delay(50);
+  while (now - start < (unsigned long)duration) {
+    float t = (now - start) / 1000.0;
+    float offset = depthHz * sin(2.0 * 3.14159 * rateHz * t);
+    int curFreq = freq + (int)offset;
+
+    tone(speakerPinLofi, curFreq, 10);
+    delay(10);
+    now = millis();
+  }
 }
