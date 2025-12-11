@@ -32,33 +32,6 @@ void loop() {
   }
   int volumeDuur = 30 + volume * 50;
  
-  // -------- Button handling (debounced toggle) --------
-  int reading = digitalRead(buttonPin);
-  if (reading != lastButtonState) {
-    lastDebounceTime = millis();
-  }
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (reading != buttonState) {
-      buttonState = reading;
-      // button is wired to GND -> pressed == LOW
-      if (buttonState == LOW) {
-        paused = !paused;
-        if (paused) {
-          // immediately stop any sound and turn off LEDs
-          noTone(speakerPinTok);
-          noTone(speakerPinLofi);
-          for (int i = 0; i < totaalTokkelLEDs; i++) digitalWrite(ledsTokkel[i], LOW);
-          for (int i = 0; i < totaalVolumeLEDs; i++) digitalWrite(volumeLeds[i], LOW);
-        }
-      }
-    }
-  }
-  lastButtonState = reading;
-
-  if (paused) {
-    delay(50); // small sleep while paused
-    return;   // skip rest of loop while paused
-  }
   // -------------------------
   // Effect pot (A2)
   // -------------------------
@@ -111,9 +84,7 @@ void loop() {
 }
  
 void playLofiWithVibrato(int freq, int duration, int depthHz, int rateHz) {
-  if (paused) return;
   if (depthHz <= 0 || rateHz <= 0) {
-    if (paused) return;
     tone(speakerPinLofi, freq, duration);
     return;
   }
@@ -122,10 +93,6 @@ void playLofiWithVibrato(int freq, int duration, int depthHz, int rateHz) {
   unsigned long now = start;
  
   while (now - start < (unsigned long)duration) {
-    if (paused) {
-      noTone(speakerPinLofi);
-      return;
-    }
     float t = (now - start) / 1000.0;
     float offset = depthHz * sin(2.0 * 3.14159 * rateHz * t);
     int curFreq = freq + (int)offset;
@@ -135,4 +102,3 @@ void playLofiWithVibrato(int freq, int duration, int depthHz, int rateHz) {
     now = millis();
   }
 }
- 
