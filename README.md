@@ -30,4 +30,10 @@ dus we kozen ervoor om het te veranderen in nog een geluid om de beat nog uitgeb
 
 #Week 5
 
-In week 5 waren we bezig met uitzoeken hoe de nieuwe speakers zouden moeten werken.
+In week 5 waren we bezig met uitzoeken hoe de nieuwe speakers zouden moeten werken. voor de rest hadden we niet zo veel tijd.
+
+#week 8
+
+In week 8 hebben we alles gesoldeerd dat we tot nu toe dachten nodig te hebben. we hebben een speaker en een button gesoldeerd de button was voor de functie aan en uit zetten en de speaker was voor de beat.
+
+
