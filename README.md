@@ -32,6 +32,10 @@ dus we kozen ervoor om het te veranderen in nog een geluid om de beat nog uitgeb
 
 In week 5 waren we bezig met uitzoeken hoe de nieuwe speakers zouden moeten werken. voor de rest hadden we niet zo veel tijd.
 
+#Week 6
+
+Week 6 was vooral debuggen aangezien we veel bugs hadden gevonden in het project, ook hadden we wat puntjes op de i gezet.
+
 #week 8
 
 In week 8 hebben we alles gesoldeerd dat we tot nu toe dachten nodig te hebben. we hebben een speaker en een button gesoldeerd de button was voor de functie aan en uit zetten en de speaker was voor de beat. In week 8 zijn we ook gaten gaan boren zodat de ledjes goed te zien zijn als je met de doos aan het spelen bent. Ook is het dan duidelijker waar de knoppen en de speakers zitten.
