@@ -34,7 +34,7 @@ In week 5 waren we bezig met uitzoeken hoe de nieuwe speakers zouden moeten werk
 
 #Week 6
 
-Week 6 was vooral debuggen aangezien we veel bugs hadden gevonden in het project, ook hadden we wat puntjes op de i gezet.
+Week 6 was vooral debuggen aangezien we veel bugs hadden gevonden in het project, ook hadden we wat puntjes op de i gezet. Maar we hadden online les dus we konden vrij weinig doen.
 
 #week 8
 
