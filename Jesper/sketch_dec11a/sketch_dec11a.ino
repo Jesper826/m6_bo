@@ -1,6 +1,3 @@
-// ---------------------------------------------------
-// PINS
-// ---------------------------------------------------
 const int potPinVolume = A1;
 const int potPinEffect = A2;
 
@@ -10,19 +7,15 @@ const int totaalVolumeLEDs = 4;
 int ledsTokkel[] = {8, 9, 10, 11};
 const int totaalTokkelLEDs = 4;
 
-const int speakerPinTok  = 7;
-const int speakerPinLofi = 12;
+const int speakerPinTok  = 12;
+const int speakerPinLofi = 7;
 
 const int ldrPin    = A3;
 const int buttonPin = 2;
 
-// ---------------------------------------------------
-// BUTTON / SYSTEM
-// ---------------------------------------------------
 bool systemOn = false;
 bool lastButtonState = HIGH;
 
-// ---------------------------------------------------
 
 void setup() {
   Serial.begin(9600);
@@ -35,21 +28,18 @@ void setup() {
   pinMode(speakerPinLofi, OUTPUT);
 }
 
-// ---------------------------------------------------
 
 void loop() {
-  // ---------------- BUTTON TOGGLE ----------------
   int reading = digitalRead(buttonPin);
 
   if (lastButtonState == HIGH && reading == LOW) {
     systemOn = !systemOn;
     Serial.print("SystemOn: ");
     Serial.println(systemOn);
-    delay(150); // debounce
+    delay(150); 
   }
   lastButtonState = reading;
 
-  // ---------------- SYSTEM UIT ----------------
   if (!systemOn) {
     noTone(speakerPinTok);
     noTone(speakerPinLofi);
@@ -59,9 +49,6 @@ void loop() {
     return;
   }
 
-  // ------------------------------------------------
-  // VOLUME POT
-  // ------------------------------------------------
   int rawVolume = analogRead(potPinVolume);
   int volume = map(rawVolume, 0, 1023, 0, totaalVolumeLEDs);
 
@@ -69,20 +56,14 @@ void loop() {
     digitalWrite(volumeLeds[i], i < volume ? HIGH : LOW);
   }
 
-  int volumeDuur = 40 + volume * 60;
+  int volumeDuur = 40 + volume * 60;    
 
-  // ------------------------------------------------
-  // EFFECT POT
-  // ------------------------------------------------
   int rawEffect = analogRead(potPinEffect);
 
   int pitchOffset  = map(rawEffect, 0, 1023, -80, 180);
   int vibratoDepth = map(rawEffect, 0, 1023, 2, 18);
   int vibratoRate  = map(rawEffect, 0, 1023, 2, 8);
 
-  // ------------------------------------------------
-  // TOKKEL
-  // ------------------------------------------------
   int waarde = analogRead(A0);
   int tokkelNiveau = map(waarde, 0, 1023, 0, totaalTokkelLEDs);
 
@@ -97,9 +78,6 @@ void loop() {
     noTone(speakerPinTok);
   }
 
-  // ------------------------------------------------
-  // LOFI + LDR (ZWARE BEATS)
-  // ------------------------------------------------
   int ldrValue = analogRead(ldrPin);
 
   if (ldrValue < 20) {
@@ -121,21 +99,14 @@ void loop() {
   delay(20);
 }
 
-// ---------------------------------------------------
-// HEAVY BEAT (ZWARE KLAP)
-// ---------------------------------------------------
 void heavyBeat(int freq, int duration, int depthHz, int rateHz) {
-  // korte lage kick
+ 
   tone(speakerPinLofi, freq - 35, 30);
   delay(35);
 
-  // hoofdtoon met vibrato
   playLofiWithVibrato(freq, duration, depthHz, rateHz);
 }
 
-// ---------------------------------------------------
-// LOFI MET VIBRATO
-// ---------------------------------------------------
 void playLofiWithVibrato(int freq, int duration, int depthHz, int rateHz) {
 
   if (depthHz <= 0 || rateHz <= 0) {
