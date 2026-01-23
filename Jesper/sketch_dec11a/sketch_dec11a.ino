@@ -1,3 +1,5 @@
+#include <math.h>
+
 const int potPinVolume = A1;
 const int potPinEffect = A2;
 
@@ -16,7 +18,6 @@ const int buttonPin = 2;
 bool systemOn = false;
 bool lastButtonState = HIGH;
 
-
 void setup() {
   Serial.begin(9600);
 
@@ -28,7 +29,6 @@ void setup() {
   pinMode(speakerPinLofi, OUTPUT);
 }
 
-
 void loop() {
   int reading = digitalRead(buttonPin);
 
@@ -36,7 +36,7 @@ void loop() {
     systemOn = !systemOn;
     Serial.print("SystemOn: ");
     Serial.println(systemOn);
-    delay(150); 
+    delay(150);
   }
   lastButtonState = reading;
 
@@ -56,7 +56,7 @@ void loop() {
     digitalWrite(volumeLeds[i], i < volume ? HIGH : LOW);
   }
 
-  int volumeDuur = 40 + volume * 60;    
+  int volumeDuur = 40 + volume * 60;
 
   int rawEffect = analogRead(potPinEffect);
 
@@ -89,10 +89,19 @@ void loop() {
     heavyBeat(140, volumeDuur, vibratoDepth, vibratoRate);
     delay(tempoDuur);
   }
-  else if (ldrValue > 35) {
-    int tempoDuur = 95;
+  else if (ldrValue <= 50) {
+    int tempoDuur = 120;
 
-    heavyBeat(190, volumeDuur, vibratoDepth, vibratoRate);
+    heavyBeat(160, volumeDuur, vibratoDepth, vibratoRate);
+    delay(tempoDuur);
+  }
+  else { 
+    int tempoDuur = 90;
+
+    heavyBeat(260, volumeDuur, vibratoDepth, vibratoRate);
+    delay(tempoDuur);
+
+    heavyBeat(300, volumeDuur / 2, vibratoDepth, vibratoRate);
     delay(tempoDuur);
   }
 
@@ -100,7 +109,6 @@ void loop() {
 }
 
 void heavyBeat(int freq, int duration, int depthHz, int rateHz) {
- 
   tone(speakerPinLofi, freq - 35, 30);
   delay(35);
 
